@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.sys.dao.SysPupilDao">
+    
+	<sql id="sysPupilColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.lostinfo AS "lostinfo",
+		a.del_flag AS "delFlag",
+		a.examinestate AS "examinestate",
+		a.switchstate AS "switchstate",
+		a.wxswitchstate AS "wxswitchstate"
+	</sql>
+	
+	<sql id="sysPupilJoins">
+	</sql>
+    
+	<select id="get" resultType="SysPupil">
+		SELECT 
+			<include refid="sysPupilColumns"/>
+		FROM sys_pupil a
+		<include refid="sysPupilJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SysPupil">
+		SELECT 
+			<include refid="sysPupilColumns"/>
+		FROM sys_pupil a
+		<include refid="sysPupilJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="examinestate != null and examinestate != ''">
+				AND a.examinestate = #{examinestate}
+			</if>
+			<if test="switchstate != null and switchstate != ''">
+				AND a.switchstate = #{switchstate}
+			</if>
+			<if test="wxswitchstate != null and wxswitchstate != ''">
+				AND a.wxswitchstate = #{wxswitchstate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SysPupil">
+		SELECT 
+			<include refid="sysPupilColumns"/>
+		FROM sys_pupil a
+		<include refid="sysPupilJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_pupil(
+			id,
+			name,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			lostinfo,
+			del_flag,
+			examinestate,
+			switchstate,
+			wxswitchstate
+		) VALUES (
+			#{id},
+			#{name},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{lostinfo},
+			#{delFlag},
+			#{examinestate},
+			#{switchstate},
+			#{wxswitchstate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_pupil SET 	
+			name = #{name},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			lostinfo = #{lostinfo},
+			examinestate = #{examinestate},
+			switchstate = #{switchstate},
+			wxswitchstate = #{wxswitchstate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE sys_pupil SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

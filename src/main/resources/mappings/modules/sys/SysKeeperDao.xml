@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.sys.dao.SysKeeperDao">
+    
+	<sql id="sysKeeperColumns">
+		a.id AS "id",
+		a.open_id AS "openId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.nickname AS "nickname",
+		a.sex AS "sex",
+		a.headimgurl AS "headimgurl",
+		a.name AS "name",
+		a.phone AS "phone",
+		a.pupil_id AS "pupilId",
+		p.id AS "sysPupil.id",
+		p.name AS "sysPupil.name"
+	</sql>
+	
+	<sql id="sysKeeperJoins">
+		LEFT JOIN sys_pupil p ON p.id = a.pupil_id
+	</sql>
+    
+	<select id="get" resultType="SysKeeper">
+		SELECT 
+			<include refid="sysKeeperColumns"/>
+		FROM sys_keeper a
+		<include refid="sysKeeperJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SysKeeper">
+		SELECT 
+			<include refid="sysKeeperColumns"/>
+		FROM sys_keeper a
+		<include refid="sysKeeperJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="phone != null and phone != ''">
+				AND a.phone = #{phone}
+			</if>
+			<if test="pupilId != null and pupilId != ''">
+				AND a.pupil_id = #{pupilId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SysKeeper">
+		SELECT 
+			<include refid="sysKeeperColumns"/>
+		FROM sys_keeper a
+		<include refid="sysKeeperJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_keeper(
+			id,
+			open_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			nickname,
+			sex,
+			headimgurl,
+			name,
+			phone,
+			pupil_id
+		) VALUES (
+			#{id},
+			#{openId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{nickname},
+			#{sex},
+			#{headimgurl},
+			#{name},
+			#{phone},
+			#{pupilId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_keeper SET 	
+			open_id = #{openId},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			nickname = #{nickname},
+			sex = #{sex},
+			headimgurl = #{headimgurl},
+			name = #{name},
+			phone = #{phone},
+			pupil_id = #{pupilId}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE sys_keeper SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>
